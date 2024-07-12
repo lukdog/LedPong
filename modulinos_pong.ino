@@ -5,6 +5,8 @@
 #include "pong_start.h"
 #include "winner.h"
 
+//#define DEBUG 1
+
 /* Features */
 #define BUZZER 1
 #define ANIMATION 1
@@ -66,7 +68,9 @@ byte frame[8][12] = {
 void setup() {
   // put your setup code here, to run once:
 
+  #ifdef DEBUG
   Serial.begin(115200);
+  #endif
 
   matrix.begin();
   Modulino.begin();
@@ -77,6 +81,8 @@ void setup() {
 
   #ifdef BUZZER
   buzzer.begin();
+  pinMode(12, INPUT_PULLUP);
+  digitalWrite(12, HIGH);
   #endif
 
   #ifdef LEDS
@@ -102,6 +108,10 @@ void setup() {
 
   game_ongoing = 1;
 
+  #ifdef DEBUG
+  Serial.println("Setup Completed");
+  #endif
+
 }
 
 
@@ -109,6 +119,10 @@ void loop() {
 
   
   if(game_ongoing){
+
+    #ifdef DEBUG
+    Serial.println("Game Ongoing");
+    #endif
 
     // Clear old ball position
     frame[ball_y][ball_x] = 0;
@@ -124,6 +138,13 @@ void loop() {
     if(ball_y < 0){ball_y = 0;}
     else if(ball_y > HEIGHT-1){ball_y = HEIGHT-1;}
 
+    #ifdef DEBUG
+    Serial.print("Rendering Bitmap with ball position (x,y): ");
+    Serial.print(ball_x);
+    Serial.print(" , ");
+    Serial.println(ball_y);
+    #endif
+
     // Draw matrix
     frame[ball_y][ball_x] = 1;
     matrix.renderBitmap(frame, 8, 12);
@@ -132,8 +153,16 @@ void loop() {
     if(ball_x == 0 || (ball_x == 1 && dir_x == DIR_LEFT)){
       //Check if gol or change dir
 
+      #ifdef DEBUG
+      Serial.println("[LEFT] Checking if gol or change dir");
+      #endif
+
       if(ball_y >= psx_y && ball_y <= psx_y + BAR_WIDTH -1){
-        //Player touched: change direction
+
+        #ifdef DEBUG
+        Serial.println("[LEFT] Player Touched - Changing direction");
+        #endif
+
         dir_x = -dir_x;
 
         if(ball_y == psx_y){
@@ -147,6 +176,11 @@ void loop() {
         playSound();
 
       } else if(ball_x == 0){
+
+        #ifdef DEBUG
+        Serial.println("[LEFT] GOL");
+        #endif
+
         game_ongoing = 0;
         winner = RIGHT_WIN;
         resetVariables();
@@ -154,8 +188,17 @@ void loop() {
 
     } else if (ball_x == WIDTH -1 || (ball_x == WIDTH -2 && dir_x == DIR_RIGHT)){
       //Check if gol or change dir
+
+      #ifdef DEBUG
+      Serial.println("[RIGHT] Checking if gol or change dir");
+      #endif
+
       if(ball_y >= pdx_y && ball_y <= pdx_y + BAR_WIDTH -1){
-        //Player touched: change direction
+        
+        #ifdef DEBUG
+        Serial.println("[RIGHT] Player Touched - Changing direction");
+        #endif
+
         dir_x = -dir_x;
 
         if(ball_y == pdx_y){
@@ -169,14 +212,28 @@ void loop() {
         playSound();
 
       } else if (ball_x == WIDTH -1){
+
+        #ifdef DEBUG
+        Serial.println("[RIGHT] GOL");
+        #endif
+
         game_ongoing = 0;
         winner = LEFT_WIN;
         resetVariables();
       }
     } else if(ball_y == 0 || ball_y == HEIGHT-1){
+
+      #ifdef DEBUG
+      Serial.println("Tentative Changing Y direction");
+      #endif
+
       //Upper or lower border, change direction (not all the time otherwise it is a stalemate)
       int8_t rnd = random(100);
       if(rnd%2 == 0){
+
+        #ifdef DEBUG
+        Serial.println("Changing Y direction");
+        #endif
         dir_y = -dir_y;
       }
       
@@ -358,6 +415,9 @@ void showVictoryAnimation(int8_t winner) {
 void playSound(){
   #ifdef BUZZER
   if(muted){return;}
+  if(digitalRead(12) == LOW){
+      return;
+  }
   buzzer.tone(300+25*ball_x, 200);
   #endif
 }
