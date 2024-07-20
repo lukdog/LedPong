@@ -11,9 +11,11 @@
 #define BUZZER 1
 #define ANIMATION 1
 #define LEDS 1
+#define BACKGROUND_LEDS 1
 
 /* Defines */
 #define SECONDARY_ENCODER_ADDRESS 0x08
+#define SECONDARY_PIXELS_ADDRESS 0x22
 #define WIDTH 12
 #define HEIGHT 8
 #define START_Y 3
@@ -37,7 +39,7 @@
 ArduinoLEDMatrix matrix;
 ModulinoKnob sxEncoder, dxEncoder(SECONDARY_ENCODER_ADDRESS);
 ModulinoBuzzer buzzer;
-ModulinoPixels leds;
+ModulinoPixels leds, ledsBackground(SECONDARY_PIXELS_ADDRESS);
 
 /* Colors */
 ModulinoColor leftColor(0xff, 0x28, 0x0), rightColor(0x0, 0xff, 0x78);
@@ -91,6 +93,20 @@ void setup() {
     leds.set(i, 0, 0, 0, LED_BRI);
   }
   leds.show();
+  #endif
+
+  #ifdef BACKGROUND_LEDS
+  ledsBackground.begin();
+  
+  for(uint8_t i = 0; i<4; i++){
+    ledsBackground.set(i, rightColor, 255);
+  }
+
+  for(uint8_t i = 4; i<8; i++){
+    ledsBackground.set(i, leftColor, 255);
+  }
+
+  ledsBackground.show();
   #endif
 
   #ifdef ANIMATION
