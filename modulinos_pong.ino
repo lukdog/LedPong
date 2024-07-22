@@ -42,7 +42,7 @@ ModulinoBuzzer buzzer;
 ModulinoPixels leds, ledsBackground(SECONDARY_PIXELS_ADDRESS);
 
 /* Colors */
-ModulinoColor leftColor(0xff, 0x28, 0x0), rightColor(0x0, 0xff, 0x78);
+ModulinoColor leftColor(0xff, 0x00, 0x00), rightColor(0x0e, 0x1d, 0xf0);
 
 /*Players positions*/
 int8_t psx_x = 0, psx_y = START_Y, pdx_x = WIDTH-1, pdx_y = START_Y;
@@ -96,16 +96,9 @@ void setup() {
   #endif
 
   #ifdef BACKGROUND_LEDS
+  randomSeed(analogRead(0));
   ledsBackground.begin();
-  
-  for(uint8_t i = 0; i<4; i++){
-    ledsBackground.set(i, rightColor, 255);
-  }
-
-  for(uint8_t i = 4; i<8; i++){
-    ledsBackground.set(i, leftColor, 255);
-  }
-
+  Scheduler.startLoop(flickerBackground);
   ledsBackground.show();
   #endif
 
@@ -448,6 +441,30 @@ void playEndAnimation(int8_t start){
     matrix.loadFrame(crash[i]);
     delay(150);
   }
+}
+#endif
+
+#ifdef BACKGROUND_LEDS
+#define FLICKER_TIME 150
+#define FLICKER_MAX 180
+#define FLICKER_DIFF 30
+void flickerBackground(){
+
+  for(uint8_t i = 0; i<4; i++){
+    uint8_t rand = random(FLICKER_DIFF);
+    ledsBackground.set(i, rightColor, FLICKER_MAX-rand);
+    delay(1);
+  }
+
+  for(uint8_t i = 4; i<8; i++){
+    uint8_t rand = random(FLICKER_DIFF);
+    ledsBackground.set(i, leftColor, FLICKER_MAX-rand);
+    delay(1);
+  }
+
+  ledsBackground.show();
+  delay(FLICKER_TIME);
+
 }
 #endif
 
