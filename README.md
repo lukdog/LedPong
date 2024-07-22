@@ -29,8 +29,8 @@ LedPong is a fun and interactive implementation of the classic Pong game designe
 ## Installation
 1. **Clone the Repository:**
    ```sh
-   git clone https://github.com/yourusername/ledpong.git
-   cd ledpong
+   git clone https://github.com/lukdog/LedPong.git
+   cd LedPong
    ```
 
 2. **Install Required Libraries:**
@@ -41,7 +41,7 @@ LedPong is a fun and interactive implementation of the classic Pong game designe
    You can install these libraries via the Arduino Library Manager.
 
 3. **Upload the Code:**
-   - Open the `ledpong.ino` file in the Arduino IDE.
+   - Open the `LedPong.ino` file in the Arduino IDE.
    - Connect your Arduino UNO R4 WiFi to your computer.
    - Select the correct board and port from the Tools menu.
    - Upload the code to your Arduino.
