@@ -1,6 +1,7 @@
 #include <Modulino.h>
 #include <Scheduler.h>
 #include <Arduino_LED_Matrix.h>
+#include <BleValueSync.h>
 #include "crash.h"
 #include "pong_start.h"
 #include "winner.h"
@@ -12,6 +13,7 @@
 #define ANIMATION 1
 #define LEDS 1
 #define BACKGROUND_LEDS 1
+#define BLE_SYNC 1
 
 /* Defines */
 #define SECONDARY_ENCODER_ADDRESS 0x08
@@ -67,6 +69,12 @@ byte frame[8][12] = {
   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
+#ifdef BLE_SYNC
+/* BT Service and properties */
+BleSync ble("LedPong", "76095e25-2eda-43c3-9289-f699b4800d2e", 1);
+BleSyncValue bleCounter("25bf4001-6fb0-4e91-8ee2-8b218c1930db", BLERead | BLEWrite);
+#endif
+
 void setup() {
   // put your setup code here, to run once:
 
@@ -114,6 +122,11 @@ void setup() {
 
   Scheduler.startLoop(playerDXLoop);
   Scheduler.startLoop(playerSXLoop);
+
+  #ifdef BLE_SYNC
+  ble.addValue(&bleCounter);
+  ble.initBLE();
+  #endif
 
   game_ongoing = 1;
 
@@ -335,7 +348,13 @@ void resetVariables(){
   dxEncoder.set(START_Y);
   sxEncoder.set(START_Y);
 
+  #ifndef BLE_SYNC
   delay(1500);
+  #endif
+
+  #ifdef BLE_SYNC
+  ble.sync(3000);
+  #endif
 
   muted = 1;
   game_ongoing = 1;
@@ -364,6 +383,10 @@ void handleMatch(int8_t winner){
 
   if(win_right == MATCH_TO_WIN || win_left == MATCH_TO_WIN){
     showVictoryAnimation(winner);
+
+    #ifdef BLE_SYNC
+    bleCounter.setValue(bleCounter.getValue()+1);
+    #endif
 
     win_right = 0;
     win_left = 0;
@@ -467,8 +490,3 @@ void flickerBackground(){
 
 }
 #endif
-
-
-
-
-
