@@ -12,7 +12,7 @@
 #define BUZZER 1
 #define ANIMATION 1
 #define LEDS 1
-#define BACKGROUND_LEDS 1
+//#define BACKGROUND_LEDS 1
 #define BLE_SYNC 1
 
 /* Defines */
@@ -71,8 +71,10 @@ byte frame[8][12] = {
 
 #ifdef BLE_SYNC
 /* BT Service and properties */
-BleSync ble("LedPong", "76095e25-2eda-43c3-9289-f699b4800d2e", 1);
+BleSync ble("LedPong", "76095e25-2eda-43c3-9289-f699b4800d2e", 3);
 BleSyncValue bleCounter("25bf4001-6fb0-4e91-8ee2-8b218c1930db", BLERead | BLEWrite);
+BleSyncValue bleLeftWinner("e6a264b5-32dc-456e-aeb1-07e63189ec7b", BLERead | BLEWrite);
+BleSyncValue bleRightWinner("12bd8f99-2d1f-458f-baf0-47ed72c0a1c8", BLERead | BLEWrite);
 #endif
 
 void setup() {
@@ -125,6 +127,8 @@ void setup() {
 
   #ifdef BLE_SYNC
   ble.addValue(&bleCounter);
+  ble.addValue(&bleLeftWinner);
+  ble.addValue(&bleRightWinner);
   ble.initBLE();
   #endif
 
@@ -386,6 +390,11 @@ void handleMatch(int8_t winner){
 
     #ifdef BLE_SYNC
     bleCounter.setValue(bleCounter.getValue()+1);
+    if(winner == LEFT_WIN){
+      bleLeftWinner.setValue(bleLeftWinner.getValue()+1);
+    } else {
+      bleRightWinner.setValue(bleRightWinner.getValue()+1);
+    }
     #endif
 
     win_right = 0;
