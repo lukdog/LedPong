@@ -11,7 +11,7 @@
 #define BUZZER 1
 #define ANIMATION 1
 #define LEDS 1
-#define BACKGROUND_LEDS 1
+//#define BACKGROUND_LEDS 1
 
 /* Defines */
 #define SECONDARY_ENCODER_ADDRESS 0x08
